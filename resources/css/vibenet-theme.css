@@ -1,0 +1,93 @@
+/* VibeNet Global Theme Variables */
+:root {
+    /* Colors */
+    --primary: #4f46e5;       /* Indigo 600 */
+    --primary-hover: #4338ca;
+    --secondary: #9333ea;     /* Purple 600 */
+    --bg-main: #f8fafc;       /* Slate 50 */
+    --bg-card: #ffffff;
+    --text-main: #0f172a;     /* Slate 900 */
+    --text-muted: #64748b;    /* Slate 500 */
+    --border-color: #e2e8f0;  /* Slate 200 */
+    
+    /* Accents */
+    --accent-indigo: rgba(79, 70, 229, 0.1);
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    
+    /* Geometry */
+    --radius-lg: 1.5rem;
+    --radius-xl: 2.5rem;
+}
+
+/* Base Style Refresh */
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Elegant Card Component */
+.vn-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vn-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.1);
+}
+
+/* Input Fields Styling */
+.vn-input {
+    width: 100%;
+    padding: 0.875rem 1.25rem;
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.vn-input:focus {
+    border-color: var(--primary);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px var(--accent-indigo);
+}
+
+/* Premium Button */
+.vn-btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 0.875rem 1.5rem;
+    border-radius: 1rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+}
+
+.vn-btn-primary:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
+.vn-btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* Text Utilities */
+.text-gradient {
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
