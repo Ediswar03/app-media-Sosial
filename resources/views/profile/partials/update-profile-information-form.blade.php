@@ -46,7 +46,15 @@
                 </div>
             @endif
         </div>
+<div class="mt-4">
+    <x-input-label for="bio" :value="__('Bio')" />
+    <textarea id="bio" name="bio" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm">{{ old('bio', $user->bio) }}</textarea>
+</div>
 
+<div class="mt-4">
+    <x-input-label for="avatar" :value="__('Avatar (Foto Profil)')" />
+    <input type="file" id="avatar" name="avatar" class="block mt-1 w-full">
+</div>
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 
