@@ -1,8 +1,5 @@
 <x-guest-layout>
-    <div class="mb-4 text-center">
-
-        <!-- Logo -->
-        <img src="{{ asset('images/2.jpg') }}" alt="Logo Aplikasi" class="mx-auto w-24 h-24 object-contain mb-4">
+    <div class="mb-4">
 
         <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Selamat Datang Kembali</h2>
 

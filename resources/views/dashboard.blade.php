@@ -1,13 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center space-x-3">
-            <img
-                src="{{ file_exists(public_path('storage/logo/2.jpg'))
-                    ? asset('storage/logo/2.jpg')
-                    : asset('images/1.jpg') }}"
-                class="w-8 h-8 object-contain"
-                alt="App Logo"
-            >
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Social Feed
             </h2>

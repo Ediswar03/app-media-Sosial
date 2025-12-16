@@ -1,6 +1,5 @@
 <x-guest-layout>
     <div class="mb-4 text-center">
-        <img src="{{ asset('Images/1.Jpg') }}" alt="Logo Aplikasi">
         <h2 class="text-2xl font-bold text-gray-700 dark:text-white">Daftar Akun Baru</h2>
         <p class="text-sm text-gray-600 dark:text-gray-400">Silakan isi data di bawah ini</p>
     </div>
