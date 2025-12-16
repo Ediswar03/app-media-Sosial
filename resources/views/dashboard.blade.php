@@ -2,9 +2,9 @@
     <x-slot name="header">
         <div class="flex items-center space-x-3">
             <img
-                src="{{ file_exists(public_path('storage/logo/app-logo.png'))
-                    ? asset('storage/logo/app-logo.png')
-                    : asset('images/default-logo.png') }}"
+                src="{{ file_exists(public_path('storage/logo/2.jpg'))
+                    ? asset('storage/logo/2.jpg')
+                    : asset('images/1.jpg') }}"
                 class="w-8 h-8 object-contain"
                 alt="App Logo"
             >
