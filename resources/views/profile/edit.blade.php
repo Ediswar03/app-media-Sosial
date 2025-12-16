@@ -4,16 +4,7 @@
             {{ __('Profile') }}
         </h2>
     </x-slot>
-<form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data">
-    @csrf
-    @method('patch')
-    
-    <div>
-        <label for="avatar">Ganti Foto Profil</label>
-        <input id="avatar" name="avatar" type="file" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none">
-    </div>
-    ...
-</form>
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
