@@ -31,6 +31,11 @@ class Post extends Model
         return $this->hasMany(Like::class);
     }
 
+    public function attachments()
+    {
+        return $this->hasMany(PostAttachment::class);
+    }
+
     // HELPERS
 
     public function isLikedBy(User $user): bool

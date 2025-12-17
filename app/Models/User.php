@@ -15,7 +15,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role', // WAJIB kalau pakai isAdmin()
+        'role',
+        'avatar',
+        'cover_image',
+        'bio',
     ];
 
     protected $hidden = [

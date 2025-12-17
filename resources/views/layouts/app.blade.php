@@ -13,6 +13,9 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <!-- Trix Editor -->
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@1.3.1/dist/trix.css">
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
@@ -32,5 +35,7 @@
                 {{ $slot }}
             </main>
         </div>
+        <script type="text/javascript" src="https://unpkg.com/trix@1.3.1/dist/trix.js"></script>
+        @stack('scripts')
     </body>
 </html>

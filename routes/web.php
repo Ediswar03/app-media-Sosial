@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\UrlPreviewController;
 use Illuminate\Support\Facades\Route;
 
 // 1. Halaman Utama (Guest)
@@ -29,6 +30,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Fitur Komentar
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::get('/comments/{comment}/edit', [CommentController::class, 'edit'])->name('comments.edit');
+    Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+
+    // URL Preview
+    Route::post('/url-preview', [UrlPreviewController::class, 'preview'])->name('url.preview');
 });
 
 // 3. Rute Khusus Admin (Moderasi)

@@ -12,15 +12,15 @@
 
             {{-- FORM POST --}}
             <div class="bg-white p-6 rounded-lg shadow-sm mb-6 border border-gray-200">
-                <form action="{{ route('posts.store') }}" method="POST">
+                <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <textarea
-                        name="body"
-                        rows="3"
-                        required
-                        placeholder="Apa yang Anda pikirkan, {{ Auth::user()->name }}?"
-                        class="w-full border-gray-200 rounded-md text-lg focus:ring-blue-200 focus:border-blue-400"
-                    ></textarea>
+                    <input id="body" type="hidden" name="body">
+                    <trix-editor input="body" class="w-full border-gray-200 rounded-md text-lg focus:ring-blue-200 focus:border-blue-400" placeholder="Apa yang Anda pikirkan, {{ Auth::user()->name }}?"></trix-editor>
+
+                    <div class="mt-4">
+                        <x-input-label for="attachments" :value="__('Attachments')" />
+                        <input type="file" id="attachments" name="attachments[]" multiple class="block mt-1 w-full">
+                    </div>
 
                     <div class="flex justify-end mt-3">
                         <x-primary-button>
@@ -79,8 +79,21 @@
 
                     {{-- BODY POST --}}
                     <p class="text-gray-800 leading-relaxed mb-4">
-                        {{ $post->body }}
+                        {!! $post->body !!}
                     </p>
+
+                    {{-- ATTACHMENTS --}}
+                    @if ($post->attachments->count() > 0)
+                        <div class="mt-4">
+                            @foreach ($post->attachments as $attachment)
+                                @if (\Illuminate\Support\Str::startsWith($attachment->mime_type, 'image/'))
+                                    <img src="{{ asset('storage/' . $attachment->path) }}" alt="Attachment" class="max-w-full h-auto rounded-lg mb-2">
+                                @else
+                                    <a href="{{ asset('storage/' . $attachment->path) }}" target="_blank" class="text-blue-500 hover:underline">{{ $attachment->path }}</a>
+                                @endif
+                            @endforeach
+                        </div>
+                    @endif
 
                     {{-- LIKE --}}
                     <div class="flex items-center border-t border-b py-2 mb-4">
@@ -107,33 +120,8 @@
 
                     {{-- KOMENTAR --}}
                     <div class="space-y-3">
-                        @foreach ($post->comments as $comment)
-                            <div class="flex items-start justify-between group">
-                                <div class="flex items-start space-x-2">
-                                    <div class="bg-gray-100 p-2 rounded-2xl px-4 text-sm">
-                                        <span class="font-bold block">
-                                            {{ $comment->user->name }}
-                                        </span>
-                                        {{ $comment->content }}
-                                    </div>
-                                </div>
-
-                                @if (Auth::id() === $comment->user_id || Auth::user()->role === 'admin')
-                                    <form
-                                        action="{{ route('comments.destroy', $comment->id) }}"
-                                        method="POST"
-                                        onsubmit="return confirm('Hapus komentar ini?')"
-                                    >
-                                        @csrf
-                                        @method('DELETE')
-                                        <button
-                                            class="text-xs text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100"
-                                        >
-                                            Hapus
-                                        </button>
-                                    </form>
-                                @endif
-                            </div>
+                        @foreach ($post->comments->whereNull('parent_id') as $comment)
+                            @include('components.comment', ['comment' => $comment, 'post' => $post])
                         @endforeach
 
                         <form
@@ -166,4 +154,39 @@
 
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('trix-change', function (event) {
+            const editor = event.target.editor;
+            const content = editor.getDocument().toString();
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            const urls = content.match(urlRegex);
+
+            if (urls) {
+                const url = urls[0];
+                axios.post('{{ route('url.preview') }}', { url: url })
+                    .then(function (response) {
+                        const preview = `
+                            <div class="mt-4 border rounded-lg p-4">
+                                <a href="${response.data.url}" target="_blank">
+                                    <img src="${response.data.image}" alt="Preview" class="max-w-full h-auto rounded-lg mb-2">
+                                    <h3 class="font-bold text-lg">${response.data.title}</h3>
+                                    <p class="text-gray-600">${response.data.description}</p>
+                                </a>
+                            </div>
+                        `;
+                        const previewContainer = document.getElementById('url-preview-container');
+                        if (previewContainer) {
+                            previewContainer.innerHTML = preview;
+                        }
+                    })
+                    .catch(function (error) {
+                        console.error(error);
+                    });
+            }
+        });
+    </script>
+    @endpush
 </x-app-layout>
+<div id="url-preview-container"></div>

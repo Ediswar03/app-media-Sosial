@@ -15,7 +15,7 @@ class PostController extends Controller
     public function index()
     {
         // Mengambil post dengan relasi (Eager Loading) untuk mencegah N+1 Query
-        $posts = Post::with(['user', 'comments.user', 'likes'])->latest()->get();
+        $posts = Post::with(['user', 'comments.user', 'comments.replies.user', 'likes', 'attachments'])->latest()->get();
         
         return view('dashboard', compact('posts'));
     }
@@ -26,12 +26,24 @@ class PostController extends Controller
     public function store(Request $request) 
     {
         $request->validate([
-            'body' => 'required|string|max:1000'
+            'body' => 'required|string|max:1000',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'file|max:2048', // 2MB per file
         ]);
         
-        $request->user()->posts()->create([
+        $post = $request->user()->posts()->create([
             'body' => $request->body,
         ]);
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('posts', 'public');
+                $post->attachments()->create([
+                    'path' => $path,
+                    'mime_type' => $file->getMimeType(),
+                ]);
+            }
+        }
 
         return back()->with('success', 'Postingan berhasil dibagikan!');
     }
