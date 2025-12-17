@@ -20,6 +20,7 @@
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <div id="theme-toggle-root" class="me-4"></div>
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
@@ -47,8 +48,13 @@
                     </x-slot>
 
                     <x-slot name="content">
+                        {{-- Menggunakan operator '??' untuk mengecek: Jika username kosong, pakai ID --}}
+<x-dropdown-link :href="route('profile.index', Auth::user()->username ?? Auth::user()->id)">
+    {{ __('My Profile') }}
+</x-dropdown-link>
+
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            {{ __('Edit Profile') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->

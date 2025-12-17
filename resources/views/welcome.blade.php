@@ -21,18 +21,9 @@
     <nav class="fixed top-0 w-full z-50 backdrop-blur-xl bg-white/70 border-b border-slate-200/50">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="100" height="100" rx="24" fill="url(#grad1)" />
-                    <path d="M30 35L50 65L70 35" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-                    <defs>
-                        <linearGradient id="grad1" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#4F46E5" />
-                            <stop offset="1" stop-color="#9333EA" />
-                        </linearGradient>
-                    </defs>
-                </svg>
+               <img src="{{ asset('images/2.jpg') }}" class="w-20 h-20 rounded-full object-cover" alt="Gambar">
                 <span class="text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-                    VibeNet
+                    Social Feed
                 </span>
             </div>
 
@@ -61,7 +52,7 @@
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
                     </span>
-                    Update: VibeNet v2.0 Telah Rilis
+                    Update: Social Feed v2.0 Telah Rilis
                 </div>
                 <h1 class="text-6xl lg:text-7xl font-extrabold text-slate-900 leading-[1.1] mb-8">
                     Ekspresikan <br>

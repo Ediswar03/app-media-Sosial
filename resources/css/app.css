@@ -1,3 +1,44 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Default (Light) Theme Variables */
+:root {
+    --background-color: #ffffff;
+    --text-color: #333333;
+    --primary-color: #4f46e5;
+    --secondary-background: #f3f4f6;
+    --border-color: #e5e7eb;
+}
+
+/* Dark Theme Variables */
+html[data-theme="dark"] {
+    --background-color: #1a202c;
+    --text-color: #e2e8f0;
+    --primary-color: #6d28d9;
+    --secondary-background: #2d3748;
+    --border-color: #4a5568;
+}
+
+/* Apply variables to common elements */
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Example for elements that might need theming */
+.card {
+    background-color: var(--secondary-background);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    /* Add any other themed properties */
+}
+
+/* You can also define Tailwind classes that use these variables in tailwind.config.js
+   or directly use arbitrary values like bg-[var(--background-color)]
+   For example, in a component:
+   <div class="bg-[var(--background-color)] text-[var(--text-color)] p-4 rounded-lg">
+     This is themed content.
+   </div>
+*/
