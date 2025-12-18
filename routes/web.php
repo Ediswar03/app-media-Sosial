@@ -12,64 +12,56 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// --- 1. HALAMAN PUBLIK (Bisa diakses Tamu & User Login) ---
-
+// Halaman Depan
 Route::get('/', function () {
     return view('welcome');
 });
 
-// ✅ PERBAIKAN: Route Profile Publik ditaruh di sini
-// URL: domain.com/u/john_doe
-// Name: profile.index
+// Route Auth bawaan (Login, Register, dll)
+require __DIR__.'/auth.php';
+
+// Route Public Profile
 Route::get('/u/{username}', [ProfileController::class, 'index'])->name('profile.index');
 
-
-// --- 2. HALAMAN TERPROTEKSI (Wajib Login & Email Verified) ---
-
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes
+|--------------------------------------------------------------------------
+*/
+// Baris 32: Grup utama (Auth & Verified) dimulai di sini
 Route::middleware(['auth', 'verified'])->group(function () {
-    
-    // Dashboard (Feed Utama)
+
+    // Dashboard (Menampilkan Post)
     Route::get('/dashboard', [PostController::class, 'index'])->name('dashboard');
 
-    // Group: Profile Settings (Edit Akun)
-    // URL dasar: /profile
+    // --- Profile Management ---
+    
+    // Custom: Update Foto Profil
+    Route::patch('/profile/images', [ProfileController::class, 'updateImages'])->name('profile.updateImages');
+    // Tambahan POST agar aman jika form menggunakan method POST
+    Route::post('/profile/images', [ProfileController::class, 'updateImages'])->name('profile.updateImages.post');
+
     Route::prefix('profile')->name('profile.')->group(function () {
-        
-        // ✅ PERBAIKAN: Hapus route 'index' dari sini agar tidak bentrok
-        // URL ini (/profile) khusus untuk EDIT/SETTINGS
-        Route::get('/', [ProfileController::class, 'edit'])->name('edit');          // Menjadi: route('profile.edit')
-        
-        Route::patch('/', [ProfileController::class, 'update'])->name('update');    // Menjadi: route('profile.update')
-        Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy'); // Menjadi: route('profile.destroy')
-        
-        // Custom Update Foto
-        Route::post('/update-images', [ProfileController::class, 'updateImages'])->name('updateImages');
+        // Route bawaan Breeze
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::patch('/', [ProfileController::class, 'update'])->name('update');
+        Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     });
 
-    // Group: Posts
+    // --- Posts ---
     Route::resource('posts', PostController::class)->except(['index']);
     Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
 
-    // Group: Comments
+    // --- Comments ---
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+    
     Route::prefix('comments')->name('comments.')->group(function () {
         Route::get('/{comment}/edit', [CommentController::class, 'edit'])->name('edit');
         Route::patch('/{comment}', [CommentController::class, 'update'])->name('update');
         Route::delete('/{comment}', [CommentController::class, 'destroy'])->name('destroy');
     });
-    
-    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
 
-    // Group: Utilities
+    // --- Utilities ---
     Route::post('/url-preview', [UrlPreviewController::class, 'preview'])->name('url.preview');
-});
 
-
-// --- 3. HALAMAN ADMIN (Wajib Login & Role Admin) ---
-
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
-});
-
-require __DIR__.'/auth.php';
+}); // Tutup kurung untuk Route::middleware(['auth', 'verified'])

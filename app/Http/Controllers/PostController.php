@@ -65,25 +65,29 @@ class PostController extends Controller
     /**
      * Fitur Like/Unlike (Toggle)
      */
-    public function like(Post $post)
-    {
-        $user = Auth::user();
+    // Di dalam PostController.php
+public function like(Post $post)
+{
+    $user = auth()->user();
 
-        // Cek apakah user sudah memberikan like
-        $existingLike = $post->likes()->where('user_id', $user->id)->first();
-
-        if ($existingLike) {
-            // Jika sudah ada, hapus like (Unlike)
-            $existingLike->delete();
-        } else {
-            // Jika belum ada, tambah like
-            $post->likes()->create([
-                'user_id' => $user->id
-            ]);
-        }
-
-        return back();
+    // Logika Like/Unlike (Toggle)
+    if ($post->isLikedBy($user)) {
+        // Jika sudah like, maka unlike (hapus)
+        $post->likes()->where('user_id', $user->id)->delete();
+        $isLiked = false;
+    } else {
+        // Jika belum, maka buat like baru
+        $post->likes()->create(['user_id' => $user->id]);
+        $isLiked = true;
     }
+
+    // KEMBALIKAN JSON (Jangan 'return back()')
+    return response()->json([
+        'status' => 'success',
+        'is_liked' => $isLiked,
+        'likes_count' => $post->likes()->count()
+    ]);
+}
     /**
  * Menampilkan halaman edit postingan
  */

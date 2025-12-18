@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -13,12 +13,31 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-   public function index(Request $request): View
+    /**
+     * Menampilkan profil publik user lain (atau diri sendiri).
+     * Route: /u/{username}
+     */
+    public function index($username): View
     {
-        return view('profile.index', [
-            'user' => $request->user(),
-        ]);
+        // Logika: Coba cari berdasarkan username kolom
+        $user = User::where('username', $username)->first();
+
+        // Jika gagal dan inputnya angka, coba cari by ID
+        if (!$user && is_numeric($username)) {
+            $user = User::find($username);
+        }
+
+        // Jika user tidak ditemukan, tampilkan 404
+        if (!$user) {
+            abort(404);
+        }
+
+        return view('profile.index', compact('user'));
     }
+
+    /**
+     * Menampilkan formulir edit profil (Nama & Email).
+     */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -27,75 +46,69 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information (Name & Email).
-     * Method ini WAJIB ADA untuk route PATCH /profile
+     * Update informasi profil TEXT (Nama & Email).
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        // Isi data user dengan data yang sudah divalidasi
         $request->user()->fill($request->validated());
 
-        // Jika email berubah, reset verifikasi email
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
         }
 
-        // Simpan perubahan
         $request->user()->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**
-     * Update the user's avatar or cover image.
-     */ 
-    public function updateImages(Request $request): RedirectResponse
+     * [BARU] Menampilkan Form Upload Gambar (GET).
+     * Opsional: Jika Anda ingin halaman khusus update gambar terpisah.
+     */
+    public function editImage(Request $request): View
     {
-        $user = $request->user();
-        
-        $request->validate([
-            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:1024'], // Max 1MB
-            'cover'  => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'], // Max 2MB
+        return view('profile.update-images', [
+            'user' => $request->user(),
         ]);
+    }
+public function updateImages(Request $request)
+{
+    $user = Auth::user();
 
-        $message = 'No changes made.';
+    // Validasi input
+    $request->validate([
+        'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096', // Cover biasanya file lebih besar
+    ]);
 
-        // LOGIC UPLOAD AVATAR
-        if ($request->hasFile('avatar')) {
-            // 1. Simpan file baru dulu
-            $path = $request->file('avatar')->store('avatars', 'public');
-
-            // 2. Jika berhasil simpan, baru hapus yang lama (agar aman)
-            if ($user->avatar_path && Storage::disk('public')->exists($user->avatar_path)) {
-                Storage::disk('public')->delete($user->avatar_path);
-            }
-
-            // 3. Update database
-            $user->update(['avatar_path' => $path]);
-            $message = 'Avatar updated successfully.';
+    // 1. Handle Upload Avatar
+    if ($request->hasFile('avatar')) {
+        // Hapus avatar lama jika bukan default
+        if ($user->avatar && Storage::exists('public/' . $user->avatar)) {
+            Storage::delete('public/' . $user->avatar);
         }
-
-        // LOGIC UPLOAD COVER
-        if ($request->hasFile('cover')) {
-            // 1. Simpan file baru
-            $path = $request->file('cover')->store('covers', 'public');
-
-            // 2. Hapus file lama
-            if ($user->cover_path && Storage::disk('public')->exists($user->cover_path)) {
-                Storage::disk('public')->delete($user->cover_path);
-            }
-
-            // 3. Update database
-            $user->update(['cover_path' => $path]);
-            $message = 'Cover image updated successfully.';
-        }
-
-        return Redirect::back()->with('status', $message); // Gunakan 'status' agar konsisten dengan blade bawaan
+        
+        // Simpan yang baru
+        $path = $request->file('avatar')->store('avatars', 'public');
+        $user->avatar = $path;
     }
 
-    /**
-     * Delete the user's account.
-     */
+    // 2. Handle Upload Cover Image
+    if ($request->hasFile('cover_image')) {
+        // Hapus cover lama
+        if ($user->cover_image && Storage::exists('public/' . $user->cover_image)) {
+            Storage::delete('public/' . $user->cover_image);
+        }
+
+        // Simpan yang baru
+        $path = $request->file('cover_image')->store('covers', 'public');
+        $user->cover_image = $path;
+    }
+
+    $user->save();
+
+    return back()->with('success', 'Gambar profil berhasil diperbarui!');
+}
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
