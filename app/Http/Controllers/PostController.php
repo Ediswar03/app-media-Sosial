@@ -2,123 +2,172 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Post; // Penting: Tambahkan ini
-use App\Models\Like; // Penting: Jika menggunakan model Like terpisah
+use App\Models\Post;
+use App\Models\Like;
+use App\Models\Attachment;
+use App\Models\Story; // Pastikan Model Story diimport
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
     /**
-     * Menampilkan semua postingan di Dashboard
+     * Menampilkan daftar postingan dan cerita (Stories)
      */
     public function index()
     {
-        // Mengambil post dengan relasi (Eager Loading) untuk mencegah N+1 Query
-        $posts = Post::with(['user', 'comments.user', 'comments.replies.user', 'likes', 'attachments'])->latest()->get();
+        // 1. Ambil Postingan
+        $posts = Post::with(['user', 'comments.user', 'comments.replies.user', 'likes', 'attachments'])
+                    ->latest()
+                    ->paginate(10);
         
-        return view('dashboard', compact('posts'));
+        // 2. Ambil Stories (Untuk slider di dashboard)
+        // Hanya ambil story yang belum kadaluwarsa (expires_at > sekarang)
+        $stories = Story::where('expires_at', '>', now())
+                    ->with('user')
+                    ->latest()
+                    ->get();
+
+        // Kirim kedua variabel ke view dashboard
+        return view('dashboard', compact('posts', 'stories'));
     }
 
     /**
      * Menyimpan postingan baru
      */
-    public function store(Request $request) 
+    public function store(Request $request)
     {
+        // 1. Validasi
         $request->validate([
-            'body' => 'required|string|max:1000',
-            'attachments' => 'nullable|array',
-            'attachments.*' => 'file|max:2048', // 2MB per file
-        ]);
-        
-        $post = $request->user()->posts()->create([
-            'body' => $request->body,
+            'body' => 'nullable|string', 
+            'attachments.*' => 'file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,wmv|max:51200', // Max 50MB
         ]);
 
+        // 2. Cek agar user tidak mengirim post kosong (tanpa teks DAN tanpa file)
+        if (!$request->body && !$request->hasFile('attachments')) {
+            return back()->withErrors(['body' => 'Konten postingan tidak boleh kosong (isi teks atau upload file).']);
+        }
+
+        // 3. Buat Postingan Utama
+        // Menggunakan operator ?? '' agar jika body null, tersimpan sebagai string kosong
+        $post = Post::create([
+            'user_id' => auth()->id(),
+            'body' => $request->body ?? '', 
+        ]);
+
+        // 4. Proses Upload File (Jika ada)
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
+                // Simpan ke storage/app/public/posts
                 $path = $file->store('posts', 'public');
-                $post->attachments()->create([
+
+                // Simpan ke database attachments
+                Attachment::create([
+                    'post_id' => $post->id,
                     'path' => $path,
                     'mime_type' => $file->getMimeType(),
                 ]);
             }
         }
 
-        return back()->with('success', 'Postingan berhasil dibagikan!');
+        return redirect()->back()->with('success', 'Postingan berhasil dibuat!');
     }
 
     /**
-     * Menghapus postingan (Fitur Moderasi Admin + Pemilik)
+     * Menghapus postingan beserta lampirannya
      */
-    public function destroy(Post $post) 
+    public function destroy(Post $post)
     {
-        // Cek apakah yang menghapus adalah pemiliknya ATAU admin
+        // 1. Otorisasi: Hanya pemilik atau admin yang boleh hapus
         if (Auth::user()->id !== $post->user_id && Auth::user()->role !== 'admin') {
             abort(403, 'Anda tidak memiliki izin untuk menghapus postingan ini.');
         }
         
+        // 2. Hapus file fisik dari storage
+        foreach ($post->attachments as $attachment) {
+            if (Storage::disk('public')->exists($attachment->path)) {
+                Storage::disk('public')->delete($attachment->path);
+            }
+        }
+
+        // 3. Hapus record dari database (Cascade akan menghapus komen/like/attachment terkait)
         $post->delete();
+
         return back()->with('success', 'Postingan berhasil dihapus.');
     }
 
     /**
-     * Fitur Like/Unlike (Toggle)
+     * Fitur Like/Unlike (AJAX)
      */
-    // Di dalam PostController.php
-public function like(Post $post)
-{
-    $user = auth()->user();
+    public function like(Post $post)
+    {
+        $user = auth()->user();
 
-    // Logika Like/Unlike (Toggle)
-    if ($post->isLikedBy($user)) {
-        // Jika sudah like, maka unlike (hapus)
-        $post->likes()->where('user_id', $user->id)->delete();
-        $isLiked = false;
-    } else {
-        // Jika belum, maka buat like baru
-        $post->likes()->create(['user_id' => $user->id]);
-        $isLiked = true;
+        if ($post->isLikedBy($user)) {
+            // Jika sudah like -> Unlike
+            $post->likes()->where('user_id', $user->id)->delete();
+            $isLiked = false;
+        } else {
+            // Jika belum like -> Like
+            $post->likes()->create(['user_id' => $user->id]);
+            $isLiked = true;
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'is_liked' => $isLiked,
+            'likes_count' => $post->likes()->count()
+        ]);
     }
 
-    // KEMBALIKAN JSON (Jangan 'return back()')
-    return response()->json([
-        'status' => 'success',
-        'is_liked' => $isLiked,
-        'likes_count' => $post->likes()->count()
-    ]);
-}
     /**
- * Menampilkan halaman edit postingan
- */
-public function edit(Post $post)
-{
-    // Keamanan: Hanya pemilik yang bisa edit
-    if (auth()->id() !== $post->user_id) {
-        abort(403, 'Anda tidak memiliki izin untuk mengedit postingan ini.');
+     * Tampilan Edit Postingan
+     */
+    public function edit(Post $post)
+    {
+        // Otorisasi
+        if (auth()->id() !== $post->user_id) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit postingan ini.');
+        }
+
+        return view('posts.edit', compact('post'));
     }
 
-    return view('posts.edit', compact('post'));
-}
+    /**
+     * Proses Update Postingan
+     */
+    public function update(Request $request, Post $post)
+    {
+        // Otorisasi
+        if (auth()->id() !== $post->user_id) {
+            abort(403);
+        }
 
-/**
- * Menyimpan perubahan postingan
- */
-public function update(Request $request, Post $post)
-{
-    // Keamanan: Pastikan hanya pemilik yang bisa update
-    if (auth()->id() !== $post->user_id) {
-        abort(403);
+        // Validasi
+        $request->validate([
+            'body' => 'nullable|string|max:2000',
+            'attachments.*' => 'file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,wmv|max:51200',
+        ]);
+
+        // Update Text (Handle null menjadi string kosong)
+        $post->update([
+            'body' => $request->body ?? ''
+        ]);
+
+        // Update Attachments (Menambah file baru)
+        // Catatan: Jika ingin menghapus file lama, butuh logika tambahan di view/controller terpisah
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('posts', 'public');
+                Attachment::create([
+                    'post_id' => $post->id,
+                    'path' => $path,
+                    'mime_type' => $file->getMimeType(),
+                ]);
+            }
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Postingan berhasil diperbarui!');
     }
-
-    $request->validate([
-        'body' => 'required|string|max:1000'
-    ]);
-
-    $post->update([
-        'body' => $request->body
-    ]);
-
-    return redirect()->route('dashboard')->with('success', 'Postingan berhasil diperbarui!');
-}
 }

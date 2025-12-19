@@ -95,4 +95,21 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+    // Tambahkan Relasi & Helper di User.php
+
+public function followers()
+{
+    // Relasi many-to-many ke user lain (sebagai pengikut)
+    return $this->belongsToMany(User::class, 'followers', 'user_id', 'follower_id');
+}
+
+public function isFollowedBy(User $user)
+{
+    // Cek apakah user ini sudah diikuti oleh $user (login user)
+    return $this->followers()->where('follower_id', $user->id)->exists();
+}
+public function stories()
+{
+    return $this->hasMany(Story::class);
+}
 }

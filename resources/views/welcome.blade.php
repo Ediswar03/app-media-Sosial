@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>VibeNet - Discover & Connect</title>
+    <title>Social Feed - Discover & Connect</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,7 +21,7 @@
     <nav class="fixed top-0 w-full z-50 backdrop-blur-xl bg-white/70 border-b border-slate-200/50">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
-               <img src="{{ asset('images/2.jpg') }}" class="w-20 h-20 rounded-full object-cover" alt="Gambar">
+               <img src="{{ asset('images/3.png') }}" class="w-20 h-20 rounded-full object-cover" alt="Gambar">
                 <span class="text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
                     Social Feed
                 </span>

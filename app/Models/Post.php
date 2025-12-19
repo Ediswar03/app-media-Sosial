@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute; // Tambahkan ini untuk fitur Mutator
 
 class Post extends Model
 {
@@ -14,7 +15,20 @@ class Post extends Model
         'body',
     ];
 
-    // RELATIONSHIPS
+    // --- MUTATORS (PERBAIKAN UTAMA) ---
+
+    /**
+     * Memastikan kolom 'body' tidak pernah bernilai NULL.
+     * Jika sistem mencoba menyimpan NULL, otomatis diubah jadi string kosong "".
+     */
+    protected function body(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => $value ?? '',
+        );
+    }
+
+    // --- RELATIONSHIPS ---
 
     public function user()
     {
@@ -33,13 +47,19 @@ class Post extends Model
 
     public function attachments()
     {
-        return $this->hasMany(PostAttachment::class);
+        // PERBAIKAN: Disamakan dengan Controller (Attachment::class), bukan PostAttachment::class
+        return $this->hasMany(Attachment::class);
     }
 
-    // HELPERS
+    // --- HELPERS ---
 
     public function isLikedBy(User $user): bool
     {
+        // Tips: Menggunakan $this->relationLoaded meminimalisir query berulang jika data sudah di-eager load
+        if ($this->relationLoaded('likes')) {
+            return $this->likes->contains('user_id', $user->id);
+        }
+
         return $this->likes()
             ->where('user_id', $user->id)
             ->exists();

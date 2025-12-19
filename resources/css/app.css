@@ -35,10 +35,13 @@ body {
     /* Add any other themed properties */
 }
 
-/* You can also define Tailwind classes that use these variables in tailwind.config.js
-   or directly use arbitrary values like bg-[var(--background-color)]
-   For example, in a component:
-   <div class="bg-[var(--background-color)] text-[var(--text-color)] p-4 rounded-lg">
-     This is themed content.
-   </div>
-*/
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.text-shadow {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}

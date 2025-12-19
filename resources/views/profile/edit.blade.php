@@ -17,7 +17,7 @@
     <div class="py-12 bg-gray-100 min-h-screen text-gray-900">
         
         {{-- Container: Tetap max-w-lg (Ramping) --}}
-        <div class="max-w-lg mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
 
             {{-- BAGIAN 2: Edit Informasi Pribadi --}}
             {{-- Card Background: Putih --}}

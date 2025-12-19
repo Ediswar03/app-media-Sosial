@@ -1,14 +1,19 @@
-@props(['size' => 'w-20 h-20']) {{-- Default ukuran (jika tidak di-set di view lain) --}}
+@props(['size' => 'w-50 h-50']) {{-- Default ukuran (jika tidak di-set di view lain) --}}
 
 @php
     // --- PENGATURAN MANUAL ---
     // Pastikan nama file ini SAMA PERSIS dengan file yang Anda taruh di folder storage
-    $pathGambar = 'logo.jpg'; 
+    $pathGambar = '3.png'; 
 @endphp
 
-<img 
-    src="{{ asset('storage/' . $pathGambar) }}" 
-    alt="Application Logo"
-    {{ $attributes->merge(['class' => 'object-cover rounded-full ' . $size]) }}
-    onerror="this.style.display='none'" {{-- Opsional: Sembunyikan jika gambar gagal dimuat --}}
->
+<div class="flex flex-col items-center justify-center gap-2">
+    {{-- Gambar --}}
+    <img 
+        src="{{ asset('storage/' . $pathGambar) }}" 
+        alt="Application Logo"
+        {{ $attributes->merge(['class' => 'object-cover rounded-full ' . $size]) }}
+        onerror="this.style.display='none'"
+    >
+    <span class="text-sm font-medium text-gray-700 text-center">
+    </span>
+</div>

@@ -5,6 +5,9 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\UrlPreviewController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\FollowController;
+use App\Http\Controllers\StoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,3 +68,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/url-preview', [UrlPreviewController::class, 'preview'])->name('url.preview');
 
 }); // Tutup kurung untuk Route::middleware(['auth', 'verified'])
+Route::get('/search', [SearchController::class, 'index'])->name('search');
+
+Route::post('/users/{user}/follow', [FollowController::class, 'toggle'])
+    ->name('users.follow')
+    ->middleware('auth');
+   Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/stories', [StoryController::class, 'store'])->name('stories.store');
+    Route::post('/stories/{story}/comments', [StoryController::class, 'comment'])->name('stories.comment');
+});
