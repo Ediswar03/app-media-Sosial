@@ -21,13 +21,19 @@ class CommentController extends Controller
         ]);
 
         // 2. Simpan komentar menggunakan relasi
-        $post->comments()->create([
+        $comment = $post->comments()->create([
             'user_id' => Auth::id(),
             'content' => $request->content,
             'parent_id' => $request->parent_id,
         ]);
 
-        // 3. Kembali ke halaman sebelumnya dengan pesan sukses
+        // 3. Kirim notifikasi ke pemilik post (jika bukan diri sendiri)
+        $user = Auth::user();
+        if ($post->user_id !== $user->id) {
+            $post->user->notify(new \App\Notifications\PostCommentedNotification($post, $comment, $user));
+        }
+
+        // 4. Kembali ke halaman sebelumnya dengan pesan sukses
         return back()->with('success', 'Komentar berhasil ditambahkan!');
     }
 

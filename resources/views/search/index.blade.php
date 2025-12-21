@@ -30,7 +30,7 @@
                                         @endif
                                     </div>
                                     <div>
-                                        <div class="font-bold text-gray-900 dark:text-gray-100 text-sm">{{ $user->name }}</div>
+                                        <div class="font-bold text-gray-900 dark:text-white text-sm">{{ $user->name }}</div>
                                         <div class="text-xs text-gray-500">{{ '@' . $user->username }}</div>
                                     </div>
                                 </div>
@@ -62,7 +62,7 @@
                                             @endif
                                         </a>
                                         <div>
-                                            <a href="{{ route('profile.index', $post->user->username ?? $post->user->id) }}" class="font-bold text-gray-900 dark:text-gray-100 hover:underline text-sm">
+                                            <a href="{{ route('profile.index', $post->user->username ?? $post->user->id) }}" class="font-bold text-gray-900 dark:text-white hover:underline text-sm">
                                                 {{ $post->user->name }}
                                             </a>
                                             <div class="text-xs text-gray-500 flex items-center">
@@ -104,7 +104,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">Tidak ditemukan hasil</h3>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Tidak ditemukan hasil</h3>
                     <p class="text-gray-500 mt-2 max-w-sm mx-auto">
                         Kami tidak dapat menemukan pengguna atau postingan yang mengandung kata kunci <span class="font-semibold">"{{ $query }}"</span>.
                     </p>

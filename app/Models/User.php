@@ -18,12 +18,20 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
         'role',
         'avatar',
         'cover_image',
         'bio',
+        'address',
+        'phone',
+        'pekerjaan',
+        'education',
+        'location',
+        'job_title',
+        'company',
     ];
 
     /**
@@ -111,5 +119,22 @@ public function isFollowedBy(User $user)
 public function stories()
 {
     return $this->hasMany(Story::class);
+}
+
+public function sentMessages()
+{
+    return $this->hasMany(Message::class, 'sender_id');
+}
+
+public function receivedMessages()
+{
+    return $this->hasMany(Message::class, 'receiver_id');
+}
+
+public function messages()
+{
+    return Message::where('sender_id', $this->id)
+        ->orWhere('receiver_id', $this->id)
+        ->orderBy('created_at', 'desc');
 }
 }

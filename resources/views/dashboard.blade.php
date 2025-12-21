@@ -10,7 +10,9 @@
         .trix-button-group--file-tools { display: none !important; }
         trix-toolbar .trix-button-group { margin-bottom: 5px !important; }
         trix-editor { border: 1px solid #e5e7eb !important; border-radius: 0.5rem; padding: 10px !important; min-height: 100px; max-height: 200px; overflow-y: auto; background-color: white; }
+        .dark trix-editor { background-color: #374151 !important; border-color: #4b5563 !important; color: #f3f4f6 !important; }
         trix-editor:empty:not(:focus)::before { color: #9ca3af; }
+        .dark trix-editor:empty:not(:focus)::before { color: #6b7280; }
         
         /* Hide Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -19,13 +21,13 @@
         [x-cloak] { display: none !important; }
     </style>
 
-    <div class="py-12 bg-gray-100 min-h-screen" x-data="{ createModalOpen: false }">
+    <div class="py-12 bg-gray-100 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-white" x-data="{ createModalOpen: false }">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
 
             {{-- 0. FLASH MESSAGE --}}
             @if (session('success'))
                 <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" 
-                     class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative shadow-sm" role="alert">
+                     class="mb-4 bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-300 px-4 py-3 rounded relative shadow-sm" role="alert">
                     <span class="block sm:inline">{{ session('success') }}</span>
                     <span @click="show = false" class="absolute top-0 bottom-0 right-0 px-4 py-3 cursor-pointer">
                         <svg class="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
@@ -34,17 +36,17 @@
             @endif
 
             {{-- 1. TRIGGER FORM CREATE POST --}}
-            <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border border-gray-200 cursor-pointer hover:bg-gray-50 transition"
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm mb-6 border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                  @click="createModalOpen = true">
                 <div class="flex space-x-3 items-center">
-                    <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) }}" 
+                    <img src="{{ Auth::user()->avatar_url }}" 
                          class="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0">
-                    <div class="w-full bg-gray-100 rounded-full px-5 py-2.5 text-gray-500 text-sm hover:bg-gray-200 transition text-left truncate">
+                    <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full px-5 py-2.5 text-gray-500 dark:text-gray-400 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition text-left truncate">
                         Apa yang Anda pikirkan, {{ Auth::user()->name }}?
                     </div>
                 </div>
-                <div class="border-t border-gray-200 mt-4 pt-3 flex justify-between px-2">
-                    <div class="flex items-center space-x-2 text-gray-500 text-sm font-medium">
+                <div class="border-t border-gray-200 dark:border-gray-700 mt-4 pt-3 flex justify-between px-2">
+                    <div class="flex items-center space-x-2 text-gray-500 dark:text-gray-400 text-sm font-medium">
                         <svg class="w-6 h-6 text-green-500" viewBox="0 0 24 24" fill="currentColor"><path d="M19.75 2H4.25C3.01 2 2 3.01 2 4.25v15.5C2 20.99 3.01 22 4.25 22h15.5c1.24 0 2.25-1.01 2.25-2.25V4.25C22 3.01 20.99 2 19.75 2zM4.25 3.5h15.5c.41 0 .75.34.75.75v15.5c0 .41-.34.75-.75.75H4.25c-.41 0-.75-.34-.75-.75V4.25c0-.41.34-.75.75-.75zm7.47 3.86c1.17 0 2.13.96 2.13 2.13 0 1.17-.96 2.13-2.13 2.13-1.17 0-2.13-.96-2.13-2.13 0-1.17.96-2.13 2.13-2.13zM6 17h12l-3.75-5-2.5 3.25-1.5-1.87L6 17z"/></svg>
                         <span>Foto/Video</span>
                     </div>
@@ -56,10 +58,10 @@
                  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                  x-transition.opacity
                  x-cloak>
-                <div class="bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden transform transition-all" @click.away="createModalOpen = false">
-                    <div class="border-b border-gray-200 px-4 py-3 flex justify-between items-center bg-gray-50">
-                        <h3 class="font-bold text-lg text-gray-800 text-center flex-1">Buat Postingan</h3>
-                        <button @click="createModalOpen = false" class="p-1.5 bg-gray-200 rounded-full hover:bg-gray-300 text-gray-600 transition">
+                <div class="bg-white dark:bg-gray-800 w-full max-w-lg rounded-xl shadow-2xl overflow-hidden transform transition-all" @click.away="createModalOpen = false">
+                    <div class="border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex justify-between items-center bg-gray-50 dark:bg-gray-700">
+                        <h3 class="font-bold text-lg text-gray-800 dark:text-gray-200 text-center flex-1">Buat Postingan</h3>
+                        <button @click="createModalOpen = false" class="p-1.5 bg-gray-200 dark:bg-gray-600 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-400 transition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -67,7 +69,7 @@
                         <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="flex items-center space-x-3 mb-4">
-                                <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) }}" class="w-10 h-10 rounded-full object-cover">
+                                <img src="{{ Auth::user()->avatar_url }}" class="w-10 h-10 rounded-full object-cover">
                                 <div><h4 class="font-bold text-gray-900">{{ Auth::user()->name }}</h4></div>
                             </div>
                             <input id="body-create" type="hidden" name="body">
@@ -92,12 +94,12 @@
             {{-- 2. LIST POST --}}
             @forelse ($posts as $post)
                 {{-- Note: Menambahkan 'editModalOpen: false' di x-data agar setiap post punya kontrol modal sendiri --}}
-                <div x-data="{ openComment: false, openMenu: false, editModalOpen: false }" class="bg-white rounded-xl shadow-sm mb-5 pb-2 border border-gray-200 overflow-visible">
+                <div x-data="{ openComment: false, openMenu: false, editModalOpen: false }" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm mb-5 pb-2 border border-gray-200 dark:border-gray-700 overflow-visible">
                     
                     {{-- A. Header Post --}}
                     <div class="flex justify-between items-start px-4 pt-4 mb-2">
                         <div class="flex items-center space-x-3">
-                            <img src="{{ $post->user->avatar ? asset('storage/' . $post->user->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($post->user->name) }}"
+                            <img src="{{ $post->user->avatar_url }}"
                                  class="w-10 h-10 rounded-full object-cover border border-gray-200">
                             
                             <div class="flex flex-col leading-tight">
@@ -166,7 +168,7 @@
                     </div>
 
                     {{-- B. Post Content --}}
-                    <div class="px-4 mb-3 text-gray-900 text-[15px] leading-relaxed break-words trix-content">
+                    <div class="px-4 mb-3 text-gray-900 dark:text-white text-[15px] leading-relaxed break-words trix-content">
                         {!! $post->body !!}
                     </div>
 
@@ -197,7 +199,7 @@
                     @endif
 
                     {{-- D. Stats --}}
-                    <div class="px-4 py-3 flex items-center justify-between text-gray-500 text-sm">
+                    <div class="px-4 py-3 flex items-center justify-between text-gray-500 dark:text-gray-400 text-sm">
                         <div class="flex items-center cursor-pointer hover:underline">
                             <div class="bg-blue-500 rounded-full p-1 mr-1.5 flex items-center justify-center w-4 h-4 shadow-sm" x-show="document.getElementById('like-count-{{ $post->id }}').innerText > 0">
                                 <svg class="w-2.5 h-2.5 text-white fill-current" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
@@ -318,9 +320,9 @@
 
                 </div>
             @empty
-                <div class="text-center p-10 bg-white rounded-xl shadow-sm border border-gray-200">
-                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    <h3 class="font-bold text-gray-900 text-lg">Belum ada postingan</h3>
+                <div class="text-center p-10 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                    <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <h3 class="font-bold text-gray-900 dark:text-white text-lg">Belum ada postingan</h3>
                 </div>
             @endforelse
 

@@ -16,8 +16,8 @@ class SearchController extends Controller
         // Jika kosong, kembalikan array kosong
         if (!$query) {
             return view('search.index', [
-                'users' => [],
-                'posts' => [],
+                'users' => collect([]),
+                'posts' => collect([]),
                 'query' => ''
             ]);
         }

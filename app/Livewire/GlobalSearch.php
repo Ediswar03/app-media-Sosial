@@ -11,11 +11,11 @@ class GlobalSearch extends Component
     public $query = ''; // Menyimpan apa yang diketik user
     public $results = []; // Menyimpan hasil pencarian
 
-    // Method ini otomatis jalan setiap $query berubah
-    public function updatedQuery()
+    // Method untuk melakukan pencarian saat tombol diklik
+    public function search()
     {
-        // Reset hasil jika input kosong atau kurang dari 2 karakter
-        if (strlen($this->query) < 2) {
+        // Validasi: tidak lakukan pencarian jika query kosong
+        if (empty(trim($this->query))) {
             $this->results = [];
             return;
         }
@@ -53,6 +53,16 @@ class GlobalSearch extends Component
 
         // Gabungkan hasil
         $this->results = $users->concat($posts);
+    }
+
+    // Method ini otomatis jalan setiap $query berubah - sekarang tidak digunakan untuk pencarian
+    public function updatedQuery()
+    {
+        // Reset hasil jika input kosong
+        if (empty(trim($this->query))) {
+            $this->results = [];
+        }
+        // Pencarian sekarang hanya dilakukan saat tombol diklik
     }
 
     public function render()

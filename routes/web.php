@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\StoryController;
+use App\Http\Controllers\ChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +50,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
         Route::patch('/', [ProfileController::class, 'update'])->name('update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
+        
+        // Settings page
+        Route::get('/settings', [ProfileController::class, 'settings'])->name('settings');
     });
 
     // --- Posts ---
@@ -66,6 +70,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // --- Utilities ---
     Route::post('/url-preview', [UrlPreviewController::class, 'preview'])->name('url.preview');
+
+
+    // --- Notifikasi ---
+    Route::get('/notifications', function() {
+        return view('notifications');
+    })->name('notifications');
+
+    // --- Chat ---
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/{user}', [ChatController::class, 'show'])->name('chat.show');
+    Route::post('/chat/{user}', [ChatController::class, 'store'])->name('chat.store');
+    Route::get('/chat/{user}/messages', [ChatController::class, 'getMessages'])->name('chat.messages');
+    Route::get('/chat/unread-count', [ChatController::class, 'getUnreadCount'])->name('chat.unread-count');
 
 }); // Tutup kurung untuk Route::middleware(['auth', 'verified'])
 Route::get('/search', [SearchController::class, 'index'])->name('search');

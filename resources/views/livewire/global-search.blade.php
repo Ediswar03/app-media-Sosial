@@ -1,10 +1,9 @@
 <div class="relative w-full" x-data="{ isOpen: true }" @click.away="isOpen = false">
     
-    {{-- CONTAINER INPUT (Relative) --}}
-    <div class="relative group">
+    {{-- FORM PENCARIAN --}}
+    <form wire:submit.prevent="search" class="relative group">
         
         {{-- 1. ICON KACA PEMBESAR (Absolute Kiri) --}}
-        {{-- 'pointer-events-none' agar klik tembus ke input di belakangnya --}}
         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <svg class="w-5 h-5 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
@@ -12,31 +11,37 @@
         </div>
 
         {{-- 2. INPUT FIELD --}}
-        {{-- Perubahan CSS Utama: --}}
-        {{-- bg-gray-100: Warna latar abu-abu terang --}}
-        {{-- rounded-full: Bentuk oval sempurna --}}
-        {{-- border-transparent: Menghilangkan border default --}}
-        {{-- pl-10: Padding kiri agar teks tidak menabrak ikon --}}
         <input 
             type="search" 
-            wire:model.live.debounce.300ms="query"
-            @focus="isOpen = true"
-            class="block w-full py-2.5 pl-10 pr-10 text-[15px] text-gray-900 bg-[#F0F2F5] border-transparent rounded-full focus:ring-2 focus:ring-blue-300 focus:bg-white transition-all placeholder-gray-500 placeholder:font-normal" 
-            placeholder="Cari di Facebook" 
+            wire:model="query"
+            class="block w-full py-2.5 pl-10 pr-16 text-[15px] text-gray-900 bg-[#F0F2F5] border-transparent rounded-full focus:ring-2 focus:ring-blue-300 focus:bg-white transition-all placeholder-gray-500 placeholder:font-normal" 
+            placeholder="Cari di Social Feed" 
             autocomplete="off"
         >
 
-        {{-- 3. LOADING SPINNER (Absolute Kanan) --}}
+        {{-- 3. TOMBOL CARI (Absolute Kanan) --}}
+        <button 
+            type="submit" 
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-600 hover:text-blue-800 transition-colors"
+            :class="{ 'opacity-50 cursor-not-allowed': !@this.query.trim() }"
+            :disabled="!@this.query.trim()"
+        >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+        </button>
+
+        {{-- 4. LOADING SPINNER --}}
         <div wire:loading class="absolute inset-y-0 right-0 flex items-center pr-3">
             <svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
         </div>
-    </div>
+    </form>
 
-    {{-- DROPDOWN HASIL (Tampilan standar, tidak ada perubahan signifikan di sini) --}}
-    @if(strlen($query) >= 2)
+    {{-- DROPDOWN HASIL --}}
+    @if($results && count($results) > 0)
         <div 
             class="absolute z-50 mt-2 w-full bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)] overflow-hidden origin-top"
             x-show="isOpen"
@@ -75,6 +80,10 @@
             @else
                 <div class="px-4 py-3 text-sm text-gray-500 text-center">Tidak ada hasil untuk "{{ $query }}"</div>
             @endif
+        </div>
+    @elseif($query && trim($query) !== '' && count($results) === 0)
+        <div class="absolute z-50 mt-2 w-full bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)] overflow-hidden origin-top">
+            <div class="px-4 py-3 text-sm text-gray-500 text-center">Tidak ada hasil untuk "{{ $query }}"</div>
         </div>
     @endif
 </div>

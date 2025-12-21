@@ -71,6 +71,13 @@ class PostController extends Controller
             }
         }
 
+        // 5. Kirim notifikasi ke followers
+        $user = auth()->user();
+        $followers = $user->followers()->get();
+        foreach ($followers as $follower) {
+            $follower->notify(new \App\Notifications\NewPostNotification($post, $user));
+        }
+
         return redirect()->back()->with('success', 'Postingan berhasil dibuat!');
     }
 
@@ -112,6 +119,11 @@ class PostController extends Controller
             // Jika belum like -> Like
             $post->likes()->create(['user_id' => $user->id]);
             $isLiked = true;
+
+            // Kirim notifikasi ke pemilik post (jika bukan diri sendiri)
+            if ($post->user_id !== $user->id) {
+                $post->user->notify(new \App\Notifications\PostLikedNotification($post, $user));
+            }
         }
 
         return response()->json([

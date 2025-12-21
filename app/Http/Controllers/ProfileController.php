@@ -36,7 +36,17 @@ class ProfileController extends Controller
     }
 
     /**
-     * Menampilkan formulir edit profil (Nama & Email).
+     * Menampilkan halaman settings (Password & Account Deletion).
+     */
+    public function settings(Request $request): View
+    {
+        return view('profile.settings', [
+            'user' => $request->user(),
+        ]);
+    }
+
+    /**
+     * Menampilkan formulir edit profil (Informasi Pribadi).
      */
     public function edit(Request $request): View
     {
@@ -82,6 +92,9 @@ public function updateImages(Request $request)
     ]);
 
     // 1. Handle Upload Avatar
+    $avatarChanged = false;
+    $coverChanged = false;
+
     if ($request->hasFile('avatar')) {
         // Hapus avatar lama jika bukan default
         if ($user->avatar && Storage::exists('public/' . $user->avatar)) {
@@ -91,6 +104,7 @@ public function updateImages(Request $request)
         // Simpan yang baru
         $path = $request->file('avatar')->store('avatars', 'public');
         $user->avatar = $path;
+        $avatarChanged = true;
     }
 
     // 2. Handle Upload Cover Image
@@ -103,9 +117,25 @@ public function updateImages(Request $request)
         // Simpan yang baru
         $path = $request->file('cover_image')->store('covers', 'public');
         $user->cover_image = $path;
+        $coverChanged = true;
     }
 
     $user->save();
+
+    // 3. Notify followers about profile/cover updates
+    if ($avatarChanged || $coverChanged) {
+        $followers = $user->followers()->get();
+
+        foreach ($followers as $follower) {
+            if ($avatarChanged) {
+                $follower->notify(new \App\Notifications\ProfilePhotoUpdatedNotification($user));
+            }
+
+            if ($coverChanged) {
+                $follower->notify(new \App\Notifications\CoverPhotoUpdatedNotification($user));
+            }
+        }
+    }
 
     return back()->with('success', 'Gambar profil berhasil diperbarui!');
 }
