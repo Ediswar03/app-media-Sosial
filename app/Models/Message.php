@@ -15,6 +15,7 @@ class Message extends Model
         'receiver_id',
         'message',
         'read_at',
+        'edited_at',
     ];
 
     protected $casts = [

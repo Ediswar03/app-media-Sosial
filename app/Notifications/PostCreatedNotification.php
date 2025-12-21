@@ -2,29 +2,26 @@
 
 namespace App\Notifications;
 
+use App\Models\Post;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Models\Post;
-use App\Models\Comment;
-use App\Models\User;
 
-class PostCommentedNotification extends Notification implements ShouldQueue
+class PostCreatedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     protected $post;
-    protected $comment;
     protected $user;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(Post $post, Comment $comment, User $user)
+    public function __construct(Post $post, User $user)
     {
         $this->post = $post;
-        $this->comment = $comment;
         $this->user = $user;
     }
 
@@ -44,9 +41,9 @@ class PostCommentedNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
     /**
@@ -57,13 +54,12 @@ class PostCommentedNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'type' => 'comment',
+            'type' => 'post_created',
             'user_id' => $this->user->id,
             'user_name' => $this->user->name,
             'user_avatar' => $this->user->avatar_url,
             'post_id' => $this->post->id,
-            'comment_id' => $this->comment->id,
-            'message' => __('notifications.post_commented', ['name' => $this->user->name]),
+            'message' => $this->user->name . ' telah mempublikasikan postingan baru.',
             'url' => route('posts.show', $this->post->id),
         ];
     }

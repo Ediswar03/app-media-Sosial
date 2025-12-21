@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\Like;
 use App\Models\Attachment;
 use App\Models\Story; // Pastikan Model Story diimport
+use App\Notifications\PostCreatedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -75,7 +76,7 @@ class PostController extends Controller
         $user = auth()->user();
         $followers = $user->followers()->get();
         foreach ($followers as $follower) {
-            $follower->notify(new \App\Notifications\NewPostNotification($post, $user));
+            $follower->notify(new PostCreatedNotification($post, $user));
         }
 
         return redirect()->back()->with('success', 'Postingan berhasil dibuat!');

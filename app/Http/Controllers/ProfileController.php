@@ -20,7 +20,7 @@ class ProfileController extends Controller
     public function index($username): View
     {
         // Logika: Coba cari berdasarkan username kolom
-        $user = User::where('username', $username)->first();
+        $user = User::where('name', $username)->first();
 
         // Jika gagal dan inputnya angka, coba cari by ID
         if (!$user && is_numeric($username)) {

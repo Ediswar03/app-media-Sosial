@@ -35,15 +35,16 @@ class ChatController extends Controller
         return view('chat.show', compact('user', 'messages'));
     }
 
-    public function store(Request $request, User $user): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'message' => 'required|string|max:1000',
+            'receiver_id' => 'required|exists:users,id',
         ]);
 
         $message = Message::create([
             'sender_id' => auth()->id(),
-            'receiver_id' => $user->id,
+            'receiver_id' => $request->receiver_id,
             'message' => $request->message,
         ]);
 
@@ -73,5 +74,36 @@ class ChatController extends Controller
             ->count();
 
         return response()->json(['count' => $count]);
+    }
+
+    public function destroyMessage(Message $message): JsonResponse
+    {
+        // Authorization check
+        if ($message->sender_id !== auth()->id()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $message->delete(); // Soft delete
+
+        return response()->json(['success' => true]);
+    }
+
+    public function updateMessage(Request $request, Message $message): JsonResponse
+    {
+        // Authorization check
+        if ($message->sender_id !== auth()->id()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'message' => 'required|string|max:1000',
+        ]);
+
+        $message->update([
+            'message' => $request->message,
+            'edited_at' => now(),
+        ]);
+
+        return response()->json(['success' => true, 'message' => $message]);
     }
 }

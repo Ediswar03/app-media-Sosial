@@ -80,9 +80,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // --- Chat ---
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
     Route::get('/chat/{user}', [ChatController::class, 'show'])->name('chat.show');
-    Route::post('/chat/{user}', [ChatController::class, 'store'])->name('chat.store');
+    Route::post('/chat', [ChatController::class, 'store'])->name('chat.store');
     Route::get('/chat/{user}/messages', [ChatController::class, 'getMessages'])->name('chat.messages');
     Route::get('/chat/unread-count', [ChatController::class, 'getUnreadCount'])->name('chat.unread-count');
+    Route::delete('/messages/{message}', [ChatController::class, 'destroyMessage'])->name('messages.destroy');
+    Route::patch('/messages/{message}', [ChatController::class, 'updateMessage'])->name('messages.update');
+    Route::post('/messages/{message}/react', [ChatController::class, 'react'])->name('messages.react');
 
 }); // Tutup kurung untuk Route::middleware(['auth', 'verified'])
 Route::get('/search', [SearchController::class, 'index'])->name('search');
