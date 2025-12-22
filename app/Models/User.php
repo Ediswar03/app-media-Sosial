@@ -64,7 +64,7 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar) {
-            return asset('storage/' . $this->avatar);
+            return route('user.avatar', ['path' => $this->avatar]);
         }
 
         // Jika user belum punya avatar, gunakan inisial nama (UI Avatars)
@@ -78,7 +78,7 @@ class User extends Authenticatable
     public function getCoverUrlAttribute()
     {
         if ($this->cover_image) {
-            return asset('storage/' . $this->cover_image);
+            return route('user.cover', ['path' => $this->cover_image]);
         }
 
         // Gambar default/placeholder jika tidak ada cover

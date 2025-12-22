@@ -24,6 +24,25 @@ Route::get('/', function () {
 // Route Auth bawaan (Login, Register, dll)
 require __DIR__.'/auth.php';
 
+// Route for serving user avatars
+Route::get('/user-avatar/{path}', [FileServeController::class, 'userAvatar'])
+    ->where('path', '.*')
+    ->name('user.avatar');
+
+// Route for serving user cover images
+Route::get('/user-cover/{path}', [FileServeController::class, 'userCover'])
+    ->where('path', '.*')
+    ->name('user.cover');
+
+// Route for serving general attachments
+Route::get('/attachment/{path}', [FileServeController::class, 'serveAttachment'])
+    ->where('path', '.*')
+    ->name('attachment.serve');
+
+// Route for serving the application logo
+Route::get('/app-logo', [FileServeController::class, 'serveAppLogo'])
+    ->name('app.logo');
+
 // Route Public Profile
 Route::get('/u/{username}', [ProfileController::class, 'index'])->name('profile.index');
 

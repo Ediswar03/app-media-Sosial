@@ -9,7 +9,7 @@
 <div class="flex flex-col items-center justify-center gap-2">
     {{-- Gambar --}}
     <img 
-        src="{{ asset('storage/' . $pathGambar) }}" 
+        src="{{ route('app.logo') }}" 
         alt="Application Logo"
         {{ $attributes->merge(['class' => 'object-cover rounded-full ' . $size]) }}
         onerror="this.style.display='none'"

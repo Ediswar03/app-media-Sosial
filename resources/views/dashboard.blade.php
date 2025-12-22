@@ -39,8 +39,10 @@
             <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm mb-6 border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                  @click="createModalOpen = true">
                 <div class="flex space-x-3 items-center">
-                    <img src="{{ Auth::user()->avatar_url }}" 
+                    {{-- FIX AVATAR --}}
+                    <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=random' }}" 
                          class="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0">
+                    
                     <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full px-5 py-2.5 text-gray-500 dark:text-gray-400 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition text-left truncate">
                         Apa yang Anda pikirkan, {{ Auth::user()->name }}?
                     </div>
@@ -69,7 +71,9 @@
                         <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="flex items-center space-x-3 mb-4">
-                                <img src="{{ Auth::user()->avatar_url }}" class="w-10 h-10 rounded-full object-cover">
+                                {{-- FIX AVATAR --}}
+                                <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=random' }}" 
+                                     class="w-10 h-10 rounded-full object-cover">
                                 <div><h4 class="font-bold text-gray-900">{{ Auth::user()->name }}</h4></div>
                             </div>
                             <input id="body-create" type="hidden" name="body">
@@ -99,22 +103,22 @@
                     {{-- A. Header Post --}}
                     <div class="flex justify-between items-start px-4 pt-4 mb-2">
                         <div class="flex items-center space-x-3">
-                            <img src="{{ $post->user->avatar_url }}"
+                            {{-- FIX AVATAR --}}
+                            <img src="{{ $post->user->avatar ? asset('storage/' . $post->user->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($post->user->name) . '&background=random' }}"
                                  class="w-10 h-10 rounded-full object-cover border border-gray-200">
                             
                             <div class="flex flex-col leading-tight">
                                 <div class="flex items-center">
                                     <h4 class="font-bold text-gray-900 text-[15px] hover:underline cursor-pointer">{{ $post->user->name }}</h4>
                                     
-                                    {{-- Tombol Ikuti (Sudah Terintegrasi DB) --}}
-                                        @if(Auth::id() !== $post->user->id)
-                                            <button 
-                                                onclick="toggleFollow(this, {{ $post->user->id }})"
-                                                data-url="{{ route('users.follow', $post->user) }}"
-                                                id="follow-btn-{{ $post->user->id }}"
-                                                class="text-[15px] font-bold ml-1 transition {{ $post->user->isFollowedBy(Auth::user()) ? 'text-gray-500 hover:text-red-500' : 'text-blue-600 hover:text-blue-800' }}">
-                                    {{-- Logika Teks Awal --}}
-                                    {{ $post->user->isFollowedBy(Auth::user()) ? '• Mengikuti' : '• Ikuti' }}
+                                    {{-- Tombol Ikuti --}}
+                                    @if(Auth::id() !== $post->user->id)
+                                        <button 
+                                            onclick="toggleFollow(this, {{ $post->user->id }})"
+                                            data-url="{{ route('users.follow', $post->user) }}"
+                                            id="follow-btn-{{ $post->user->id }}"
+                                            class="text-[15px] font-bold ml-1 transition {{ $post->user->isFollowedBy(Auth::user()) ? 'text-gray-500 hover:text-red-500' : 'text-blue-600 hover:text-blue-800' }}">
+                                        {{ $post->user->isFollowedBy(Auth::user()) ? '• Mengikuti' : '• Ikuti' }}
                                         </button>
                                     @endif
                                 </div>
@@ -138,7 +142,7 @@
                                  x-transition.origin.top.right 
                                  x-cloak>
                                 
-                                {{-- 1. Edit Postingan (Membuka Modal) --}}
+                                {{-- 1. Edit Postingan --}}
                                 @if(Auth::id() === $post->user_id)
                                     <button @click="editModalOpen = true; openMenu = false" class="w-full flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition text-left">
                                         <svg class="w-5 h-5 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -229,7 +233,7 @@
                                 <span class="font-semibold text-sm">Komentar</span>
                             </button>
 
-                            {{-- Share (Berfungsi Native) --}}
+                            {{-- Share --}}
                             <button onclick="sharePost('Postingan {{ $post->user->name }}', '{{ route('dashboard') }}')" class="flex-1 flex items-center justify-center py-2 hover:bg-gray-100 rounded-lg transition text-gray-600">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
                                 <span class="font-semibold text-sm">Bagikan</span>
@@ -247,7 +251,8 @@
                             <div class="flex-1 overflow-y-auto p-4 space-y-4">
                                 @forelse ($post->comments as $comment)
                                     <div class="flex space-x-2">
-                                        <img src="{{ $comment->user->avatar ? asset('storage/' . $comment->user->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->name) }}" class="w-9 h-9 rounded-full border border-gray-200 mt-1">
+                                        {{-- FIX AVATAR --}}
+                                        <img src="{{ $comment->user->avatar ? asset('storage/' . $comment->user->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->name) . '&background=random' }}" class="w-9 h-9 rounded-full border border-gray-200 mt-1 object-cover">
                                         <div class="flex-1">
                                             <div class="bg-gray-100 rounded-2xl px-3 py-2 inline-block">
                                                 <div class="font-bold text-[13px] text-gray-900">{{ $comment->user->name }}</div>
@@ -261,14 +266,14 @@
                                 @endforelse
                             </div>
                             
-                            {{-- Form Komentar dengan Icon Pesawat Kertas --}}
+                            {{-- Form Komentar --}}
                             <div class="border-t border-gray-200 p-3 bg-white rounded-b-xl">
                                 <form action="{{ route('comments.store', $post->id) }}" method="POST" class="flex items-center space-x-2">
                                     @csrf
-                                    <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) }}" class="w-8 h-8 rounded-full border border-gray-200">
+                                    {{-- FIX AVATAR --}}
+                                    <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=random' }}" class="w-8 h-8 rounded-full border border-gray-200 object-cover">
                                     <div class="flex-1 relative">
                                         <input type="text" name="content" required placeholder="Tulis komentar..." class="w-full bg-gray-100 text-gray-800 rounded-full border-none focus:ring-0 px-4 py-2.5 text-sm placeholder-gray-500 focus:bg-gray-50 transition pr-10">
-                                        {{-- ICON SUBMIT: Pesawat Kertas --}}
                                         <button type="submit" class="absolute right-2 top-1.5 text-blue-600 hover:bg-blue-100 p-1.5 rounded-full transition transform hover:scale-110">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"></path></svg>
                                         </button>
@@ -278,7 +283,7 @@
                         </div>
                     </div>
 
-                    {{-- G. MODAL EDIT POST (BARU: Pop Up Edit) --}}
+                    {{-- G. MODAL EDIT POST --}}
                     @if(Auth::id() === $post->user_id)
                     <div x-show="editModalOpen" style="display: none;" 
                          class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
@@ -294,11 +299,11 @@
                                 <form action="{{ route('posts.update', $post) }}" method="POST" enctype="multipart/form-data">
                                     @csrf @method('PUT')
                                     <div class="flex items-center space-x-3 mb-4">
-                                        <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) }}" class="w-10 h-10 rounded-full object-cover">
+                                        {{-- FIX AVATAR --}}
+                                        <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=random' }}" class="w-10 h-10 rounded-full object-cover">
                                         <div><h4 class="font-bold text-gray-900">{{ Auth::user()->name }}</h4></div>
                                     </div>
                                     
-                                    {{-- Penting: ID Input harus unik per post --}}
                                     <input id="edit-body-{{ $post->id }}" type="hidden" name="body" value="{!! $post->body !!}">
                                     <trix-editor input="edit-body-{{ $post->id }}" class="trix-content text-gray-800 min-h-[120px]"></trix-editor>
 
@@ -384,49 +389,49 @@
             }
         }
 
-        // FUNGSI AJAX FOLLOW (MOCKUP)
-        function toggleFollow(btn, userId) {
-            // Logika AJAX di sini. Contoh visual:
-            if(btn.innerText.includes('Ikuti')) {
-                btn.innerText = '• Mengikuti';
-                btn.classList.remove('text-blue-600');
-                btn.classList.add('text-gray-500');
-            } else {
-                btn.innerText = '• Ikuti';
-                btn.classList.add('text-blue-600');
-                btn.classList.remove('text-gray-500');
-            }
-            // Tambahkan axios.post('/follow/' + userId) di sini nanti
-        }
+        // TOGGLE LIKE
+        async function toggleLike(button, postId) {
+            const url = button.dataset.url;
+            const likeCountSpan = document.getElementById(`like-count-${postId}`);
+            const likeIcon = document.getElementById(`like-icon-${postId}`);
+            const likeButton = document.getElementById(`like-btn-${postId}`);
 
-        // AJAX LIKE SETUP
-        if (typeof axios !== 'undefined') {
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        }
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                });
 
-        function toggleLike(button, postId) {
-            const url = button.getAttribute('data-url');
-            const icon = document.getElementById(`like-icon-${postId}`);
-            const countSpan = document.getElementById(`like-count-${postId}`);
-            const btn = document.getElementById(`like-btn-${postId}`);
-
-            btn.classList.add('opacity-50');
-            axios.post(url).then(response => {
-                if (response.data.status === 'success') {
-                    countSpan.innerText = response.data.likes_count;
-                    if (response.data.is_liked) {
-                        btn.classList.remove('text-gray-600');
-                        btn.classList.add('text-blue-600');
-                        icon.classList.add('fill-current');
-                        icon.classList.remove('fill-none', 'stroke-current');
-                    } else {
-                        btn.classList.add('text-gray-600');
-                        btn.classList.remove('text-blue-600');
-                        icon.classList.remove('fill-current');
-                        icon.classList.add('fill-none', 'stroke-current');
-                    }
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-            }).catch(error => console.error(error)).finally(() => btn.classList.remove('opacity-50'));
+
+                const data = await response.json();
+
+                // Update like count
+                likeCountSpan.innerText = data.likes_count;
+
+                // Toggle button appearance
+                if (data.is_liked) {
+                    likeButton.classList.add('text-blue-600');
+                    likeButton.classList.remove('text-gray-600');
+                    likeIcon.classList.add('fill-current');
+                    likeIcon.classList.remove('fill-none', 'stroke-current');
+                } else {
+                    likeButton.classList.remove('text-blue-600');
+                    likeButton.classList.add('text-gray-600');
+                    likeIcon.classList.remove('fill-current');
+                    likeIcon.classList.add('fill-none', 'stroke-current');
+                }
+
+            } catch (error) {
+                console.error('Error toggling like:', error);
+                alert('Gagal mengubah status suka. Silakan coba lagi.');
+            }
         }
     </script>
     @endpush
